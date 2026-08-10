@@ -20,9 +20,12 @@ circulating at once. They read like three problems. They are close to one.
 In all three, **the binary that executes is legitimate and the malicious code arrives as
 something that binary resolves at runtime.**
 
-- **A** ships the genuine, validly signed Notepad++ WinGUP updater (`gup.exe`) renamed to
-  whatever vendor is being impersonated, next to a trojanized `libcurl.dll`. Windows resolves
-  the DLL from the working directory. The signature on the EXE stays valid throughout.
+- **A** ships a legitimate, signed copy of the WinGUP updater (`gup.exe`, the generic update
+  component used by Notepad++) renamed to whatever vendor is being impersonated, next to a
+  trojanized `libcurl.dll`. Arctic Wolf: *"When the user runs the executable, gup.exe
+  side-loads libcurl.dll, which decodes and reflectively executes an embedded infostealer
+  entirely in memory."* The report describes the updater as legitimate and signed but does not
+  name the signer, so neither do we.
 - **B** is the vendor's real installer, correctly signed, that happened to carry two extra lines
   of JavaScript in its Electron renderer. Later generations sideload through `csmonitor.exe`,
   a legitimate Microsoft Azure emulator binary, loading `Microsoft.ServiceHosting.Tools.dll`.
@@ -34,7 +37,15 @@ container; it says nothing about what the container loads after it starts. Platf
 does the same at the other end: a `github.io` redirect means GitHub served a redirect, not that
 GitHub vouched for the destination.
 
-We call the pattern **borrowed trust**, and it is why one rule catches all three shapes.
+We call the pattern **borrowed trust**, and it is why one rule shape catches all three.
+
+**Where the synthesis is weaker, stated plainly.** A and B are clean instances: the process that
+executes is a legitimate signed binary and the malicious code is a dependency it resolves. C is
+not. Its first stage, `Launch.exe`, is attacker-authored and carries no borrowed trust at all;
+the pattern only appears at the second stage, where the payload takes a Visual C++ runtime
+filename and then injects into signed Microsoft utilities. So C belongs to the family by its
+later behaviour, not its delivery. Anyone using this framing should apply it to A and B first
+and treat C as the partial case. Overstating that would make the argument tidier and worse.
 
 ## What this repository contains
 
