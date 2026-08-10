@@ -1,0 +1,14 @@
+# Hunt output. These files record what was found on a specific machine: hostnames,
+# usernames, absolute paths, and the repository inventory of whoever ran the script.
+# They are deliberately never committed. If you need to share a result, redact it by hand.
+sweep-results.json
+dev-toolchain-exposure.json
+fleet-exposure.json
+*.results.json
+
+# Local scratch
+*.log
+*.tmp
+.venv/
+__pycache__/
+*.pyc
