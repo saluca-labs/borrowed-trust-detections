@@ -20,6 +20,12 @@ authors:
 repository-code: "https://github.com/saluca-labs/borrowed-trust-detections"
 license: Apache-2.0
 date-released: 2026-08-10
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.21880002"
+    description: >-
+      Companion paper. DOI is reserved; the deposit is pending publication and the link may not
+      resolve yet.
 keywords:
   - detection engineering
   - threat detection

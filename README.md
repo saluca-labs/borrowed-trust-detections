@@ -205,8 +205,14 @@ technical claim traces to one of the three primary sources listed above.
 
 ## Citation
 
-See `CITATION.cff`. A companion paper is deposited on Zenodo; the DOI is recorded there once the
-record is live.
+Companion paper: *Borrowed Trust: A Detection Engineering Analysis of Three Concurrent
+Signed-Binary Sideload Campaigns, August 2026*, Cristian Ruvalcaba and the Saluca Agentic AI
+Research Team, Saluca Labs.
+
+**DOI: [10.5281/zenodo.21880002](https://doi.org/10.5281/zenodo.21880002)**
+
+The deposit is reserved and pending publication at the time of writing, so the DOI may not resolve
+yet. See `CITATION.cff` for machine-readable citation metadata.
 
 ## License
 
