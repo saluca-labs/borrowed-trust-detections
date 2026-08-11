@@ -23,9 +23,25 @@ date-released: 2026-08-10
 identifiers:
   - type: doi
     value: "10.5281/zenodo.21880002"
-    description: >-
-      Companion paper. DOI is reserved; the deposit is pending publication and the link may not
-      resolve yet.
+    description: "Companion paper, published on Zenodo 2026-08-11 under CC-BY-4.0."
+preferred-citation:
+  type: report
+  title: >-
+    Borrowed Trust: A Detection Engineering Analysis of Three Concurrent Signed-Binary
+    Sideload Campaigns, August 2026
+  authors:
+    - family-names: Ruvalcaba
+      given-names: Cristian
+      affiliation: "Saluca Labs"
+    - name: "Saluca Agentic AI Research Team"
+      alias: "Saluca Agentic AI Research Team"
+  institution:
+    name: "Saluca Labs"
+  year: 2026
+  month: 8
+  doi: "10.5281/zenodo.21880002"
+  url: "https://doi.org/10.5281/zenodo.21880002"
+  license: CC-BY-4.0
 keywords:
   - detection engineering
   - threat detection

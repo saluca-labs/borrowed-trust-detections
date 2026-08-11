@@ -209,10 +209,22 @@ Companion paper: *Borrowed Trust: A Detection Engineering Analysis of Three Conc
 Signed-Binary Sideload Campaigns, August 2026*, Cristian Ruvalcaba and the Saluca Agentic AI
 Research Team, Saluca Labs.
 
-**DOI: [10.5281/zenodo.21880002](https://doi.org/10.5281/zenodo.21880002)**
+**DOI: [10.5281/zenodo.21880002](https://doi.org/10.5281/zenodo.21880002)** · Zenodo, 2026 ·
+CC-BY-4.0
 
-The deposit is reserved and pending publication at the time of writing, so the DOI may not resolve
-yet. See `CITATION.cff` for machine-readable citation metadata.
+Published 2026-08-11. See `CITATION.cff` for machine-readable citation metadata.
+
+```bibtex
+@techreport{ruvalcaba2026borrowedtrust,
+  title  = {Borrowed Trust: A Detection Engineering Analysis of Three Concurrent
+            Signed-Binary Sideload Campaigns, August 2026},
+  author = {Ruvalcaba, Cristian and {Saluca Agentic AI Research Team}},
+  year   = {2026},
+  institution = {Saluca Labs},
+  doi    = {10.5281/zenodo.21880002},
+  url    = {https://doi.org/10.5281/zenodo.21880002}
+}
+```
 
 ## License
 
