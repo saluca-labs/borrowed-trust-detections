@@ -84,6 +84,11 @@ runs on Windows; the compile step runs anywhere.
   `powershell -ExecutionPolicy Bypass -File hunt/Invoke-BorrowedTrustSweep.ps1 [-Deep] [-JsonOut <file>]`
   and `powershell -ExecutionPolicy Bypass -File hunt/Invoke-DevToolchainExposureReview.ps1 -Roots <dir> [-JsonOut <file>]`.
   The reports record hostnames, usernames and paths; `.gitignore` keeps them out of commits.
+  Measured 2026-10-22 on a Windows 11 developer workstation: `Invoke-BorrowedTrustSweep.ps1`
+  completed in about 15 minutes and reported two HIGH findings under check A2, both legitimate
+  per-user application installs under `AppData\Local` that ship their own `libcurl.dll`. Expect
+  that false positive from A2 on hosts with per-user installs, and triage by signer and install
+  path before acting on it.
 
 ## Architecture
 
