@@ -1,0 +1,27 @@
+# borrowed-trust-detections
+
+> Defensive detection content (Sigma, YARA, KQL, Splunk SPL, Suricata, two read-only PowerShell hunt scripts, and a sourced indicator CSV) for three August 2026 campaigns in which a legitimately signed binary loads a malicious dependency at runtime: BoryptGrab fake GitHub repositories, the QuickFox VPN FDMTP supply chain, and the "Free VPN for PC" Lumma dropper. Apache-2.0; the companion paper is CC-BY-4.0 (concept DOI 10.5281/zenodo.21880001).
+
+This is an archived snapshot dated 2026-08-10; the maintained copy is campaigns/2026-08-borrowed-trust in saluca-labs/detection-content. It contains no malware, samples or payloads: the hashes, domains and IPs in iocs/indicators.csv are published indicators, each attributed to its source report. KQL and SPL were never executed against a tenant; the Suricata file was replaced on 2026-10-22 with the version that loads (26 rules, Suricata 7.0.17), see the README correction. Rules have not been tuned on real telemetry.
+
+## Docs
+
+- [README](https://github.com/saluca-labs/borrowed-trust-detections/blob/main/README.md): status and corrections, what each rule keys on, what cannot be detected, validation table
+
+## Code
+
+- [Sigma rules](https://github.com/saluca-labs/borrowed-trust-detections/blob/main/detections/sigma/): 22 rules in three files, plus validate.py
+- [YARA rules](https://github.com/saluca-labs/borrowed-trust-detections/blob/main/detections/yara/borrowed-trust.yar): 12 rules; detections/yara/validate.py compiles them and smoke-tests for false positives
+- [KQL](https://github.com/saluca-labs/borrowed-trust-detections/blob/main/detections/kql/defender-sentinel-hunting.kql): Defender XDR / Sentinel hunting queries Q0 to Q14
+- [SPL](https://github.com/saluca-labs/borrowed-trust-detections/blob/main/detections/splunk/sysmon-searches.spl): Sysmon searches S0 to S15
+- [Suricata](https://github.com/saluca-labs/borrowed-trust-detections/blob/main/detections/suricata/borrowed-trust.rules): 26 network rules, SID 1000001-1000060
+- [Invoke-BorrowedTrustSweep.ps1](https://github.com/saluca-labs/borrowed-trust-detections/blob/main/hunt/Invoke-BorrowedTrustSweep.ps1): read-only host sweep for all three campaigns
+- [Invoke-DevToolchainExposureReview.ps1](https://github.com/saluca-labs/borrowed-trust-detections/blob/main/hunt/Invoke-DevToolchainExposureReview.ps1): read-only review of npm install scripts and editor run-on-open hooks
+- [iocs/indicators.csv](https://github.com/saluca-labs/borrowed-trust-detections/blob/main/iocs/indicators.csv): published indicators, one per row, with source
+
+## Optional
+
+- [CITATION.cff](https://github.com/saluca-labs/borrowed-trust-detections/blob/main/CITATION.cff): how to cite
+- [Companion paper](https://doi.org/10.5281/zenodo.21880001): the analysis on Zenodo
+- [Maintained copy in detection-content](https://github.com/saluca-labs/detection-content/tree/main/campaigns/2026-08-borrowed-trust)
+- [llms-full.txt](https://github.com/saluca-labs/borrowed-trust-detections/blob/main/llms-full.txt): the README in one file
