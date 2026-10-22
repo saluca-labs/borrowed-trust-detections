@@ -4,9 +4,13 @@
 
 This is an archived snapshot dated 2026-08-10; the maintained copy is campaigns/2026-08-borrowed-trust in saluca-labs/detection-content. It contains no malware, samples or payloads: the hashes, domains and IPs in iocs/indicators.csv are published indicators, each attributed to its source report. KQL and SPL were never executed against a tenant; the Suricata file was replaced on 2026-10-22 with the version that loads (26 rules, Suricata 7.0.17), see the README correction. Rules have not been tuned on real telemetry.
 
+If a rule file, script or parameter is not listed here, it does not exist in this repository. The complete surface is five rule files plus their two validators, two PowerShell scripts, and one indicator CSV. Counts below were taken from the files on 2026-10-22: Sigma 22 (`id:` lines across three files), YARA 12, KQL 15 (Q0 to Q14), SPL 16 (S0 to S15), Suricata 26.
+
+The full text of this repository's prose docs, concatenated, each under its path. Regenerate this file whenever one of them changes.
+
 ## README.md
 
-# Borrowed Trust
+### Borrowed Trust
 
 **Detection content for three concurrent campaigns that share one execution primitive.**
 Sigma, YARA, KQL, SPL and Suricata rules plus two read-only PowerShell hunt scripts, for
@@ -14,7 +18,7 @@ defenders who run those tools.
 
 Current to **2026-08-10**. Defensive material only.
 
-## Status
+#### Status
 
 Archived snapshot of the August 2026 pack. The rules have not been tuned against real telemetry.
 On 2026-08-20 this pack was consolidated into
@@ -42,7 +46,7 @@ which is where fixes land; this repository received the Suricata fix below on 20
 >
 > The text below is otherwise kept as published.
 
-## Install
+#### Install
 
 Nothing to install to use the rules: they are text files for your SIEM, EDR or sensor. To run
 the two validators, Python 3 with `pyyaml` and `yara-python` (tested 2026-10-22 on Python
@@ -56,7 +60,7 @@ python -m pip install pyyaml yara-python
 
 The hunt scripts need Windows PowerShell 5.1 and nothing else.
 
-## Quickstart
+#### Quickstart
 
 ```bash
 python detections/sigma/validate.py
@@ -78,7 +82,7 @@ All Sigma rules valid.
 The YARA false-positive smoke test reads four files under `C:\Windows\System32`, so it only
 runs on Windows; the compile step runs anywhere.
 
-## Usage
+#### Usage
 
 - **Sigma** (`detections/sigma/*.yml`): convert with the backend for your SIEM, for example
   with sigma-cli's `sigma convert` (not part of this repository).
@@ -98,7 +102,7 @@ runs on Windows; the compile step runs anywhere.
   that false positive from A2 on hosts with per-user installs, and triage by signer and install
   path before acting on it.
 
-## Architecture
+#### Architecture
 
 See "What this repository contains" below for the layout. Every rule is keyed to a campaign
 letter (A BoryptGrab, B QuickFox FDMTP, C Lumma "Free VPN"), and the same detection appears
@@ -108,9 +112,35 @@ named in the last column. The indicators are threat-actor infrastructure and sam
 the cited vendor reports, not live samples: no malware, payload or sample file is in this
 repository.
 
+The four structural detections from "Deploy these four first", and where each one lives in every
+format that carries it. Traced from the rule titles, query labels and SIDs in the files named.
+
+```mermaid
+flowchart LR
+  d1["Detection 1: libcurl.dll loaded from a user-writable path (A)"] --> s1["Sigma: boryptgrab-fake-github-repos.yml<br/>libcurl.dll Sideloaded From User-Writable Path"]
+  d1 --> k1["KQL Q2"]
+  d1 --> p1["SPL S2"]
+  d2["Detection 2: OriginalFileName gup.exe under another name (A)"] --> s2["Sigma: boryptgrab-fake-github-repos.yml<br/>Signed WinGUP Updater Renamed To A Vendor Brand Name"]
+  d2 --> k2["KQL Q3"]
+  d2 --> p2["SPL S3"]
+  d3["Detection 3: protocol=DotNet-TcpFDMTP in a URI (B)"] --> s3["Sigma: quickfox-fdmtp-supply-chain.yml<br/>FDMTP Cluster Registration Request"]
+  d3 --> r3["Suricata sid 1000020"]
+  d3 --> k3["KQL Q10"]
+  d3 --> p3["SPL S10"]
+  d4["Detection 4: archive fetched with a github.io referrer from a non-GitHub host (A, cross-campaign)"] --> r4["Suricata sid 1000008"]
+  d4 --> k4["KQL Q13"]
+  d4 --> p4["SPL S14"]
+```
+
+KQL is `detections/kql/defender-sentinel-hunting.kql`, SPL is
+`detections/splunk/sysmon-searches.spl`, Suricata is `detections/suricata/borrowed-trust.rules`.
+Detection 4 has no general Sigma form. The nearest Sigma rule, "BoryptGrab Fake Download Page Or
+Payload Endpoint Accessed", also matches a `.github.io` referrer but only on campaign A's
+`/download-archive` path, so it is not drawn as detection 4.
+
 ---
 
-## The short version
+#### The short version
 
 In the first days of August 2026, three separate stories about malicious VPN software were
 circulating at once. They read like three problems. They are close to one.
@@ -151,7 +181,7 @@ filename and then injects into signed Microsoft utilities. So C belongs to the f
 later behaviour, not its delivery. Anyone using this framing should apply it to A and B first
 and treat C as the partial case. Overstating that would make the argument tidier and worse.
 
-## What this repository contains
+#### What this repository contains
 
 ```
 detections/
@@ -172,7 +202,7 @@ Nothing here executes a payload, reproduces one, or explains how to build one. T
 read the filesystem, registry, DNS cache, and process list, and write a JSON report. They do not
 delete, quarantine, modify, or terminate anything.
 
-## Deploy these four first
+#### Deploy these four first
 
 Everything else in here decays. BoryptGrab rebuilds its archive roughly every sixty seconds and
 had around 78 redirector accounts live simultaneously, so its hashes were stale before the report
@@ -203,7 +233,7 @@ third-party input method editors write there legitimately. The FDMTP port-range 
 custom internal services unless you scope it to non-RFC1918 destinations. The `.sbs` TLD Suricata
 rule is deliberately shipped as a hunt, not an alert.
 
-## What you cannot detect here
+#### What you cannot detect here
 
 This section is the point of the package, and it is short on purpose.
 
@@ -236,7 +266,7 @@ through a research writeup, not a victim's alerting. In all three the discovery 
 someone doing threat research, not through a defender's own stack firing. That is unflattering to
 the discipline and it is the most important line in this file.
 
-## Limitations
+#### Limitations
 
 - **No victim forensic artifacts.** Everything here is built from published vendor research. We
   detonated nothing and had access to no incident data.
@@ -255,7 +285,7 @@ the discipline and it is the most important line in this file.
 - **KQL, SPL, and Suricata are reviewed, not executed.** See the validation table below for
   exactly what was and was not run.
 
-## What was actually validated
+#### What was actually validated
 
 | Content | Status |
 |---|---|
@@ -269,7 +299,7 @@ the discipline and it is the most important line in this file.
 The `curl.exe` case in the YARA smoke test is deliberate: one rule targets a trojanized libcurl,
 and a rule that flags the real thing is worse than no rule.
 
-## Credit
+#### Credit
 
 This package is derived work. The research is theirs:
 
@@ -288,26 +318,26 @@ There is a specific thing worth saying about Arctic Wolf. The campaign impersona
 organisation was convincing enough to warrant a full writeup. Publishing an unflattering account
 of an attack that used your own name is what makes work like this possible.
 
-## Sources
+#### Sources
 
 - Arctic Wolf, *Malicious GitHub Campaign: Fake "Arctic Wolf" and 290+ Brand-Impersonation Repositories Deliver BoryptGrab-Lineage Infostealer* - https://arcticwolf.com/resources/blog/fake-github-repositories-deliver-boryptgrab-lineage-infostealer/
 - Fortinet FortiGuard Labs, *QuickFox Supply Chain Attack Used to Deploy FDMTP Implant* - https://www.fortinet.com/blog/threat-research/quickfox-supply-chain-attack-used-to-deploy-fdmtp-implant
 - CYFIRMA, *GitHub Abused to Spread Malware Disguised as Free VPN* - https://www.cyfirma.com/research/github-abused-to-spread-malware-disguised-as-free-vpn/
 
-## Scope and intent
+#### Scope and intent
 
 Defensive material only. No exploitation guidance, no offensive code, no targeting data, no
 reproduction of any payload. The indicator list exists so defenders can search their own
 telemetry for it.
 
-## AI disclosure
+#### AI disclosure
 
 This package was produced with agentic AI assistance under human direction. The human researcher
 originated the analysis, made every go/no-go decision, and is solely accountable for the
 contents. AI assistance was used for source review, rule drafting, and validation tooling. Every
 technical claim traces to one of the three primary sources listed above.
 
-## Citation
+#### Citation
 
 Companion paper: *Borrowed Trust: A Detection Engineering Analysis of Three Concurrent
 Signed-Binary Sideload Campaigns, August 2026*, Cristian Ruvalcaba and the Saluca Agentic AI
@@ -330,18 +360,18 @@ Published 2026-08-11. See `CITATION.cff` for machine-readable citation metadata.
 }
 ```
 
-## Screenshots
+#### Screenshots
 
 ![Terminal output of the Sigma validator (22 rules across 3 files, all valid) and the YARA validator (12 rules compiled, 0 false positives on four Windows system binaries)](docs/img/validators-2026-10-22.png)
 
 Captured 2026-10-22 from a clean clone on Windows 11; commands and captured text in
 [`docs/img/validators-2026-10-22.txt`](docs/img/validators-2026-10-22.txt).
 
-## License
+#### License
 
 Apache License 2.0 (SPDX `Apache-2.0`). See [`LICENSE`](LICENSE). The companion paper is CC-BY-4.0.
 
-## Links
+#### Links
 
 - Companion paper: https://doi.org/10.5281/zenodo.21880001
 - Maintained copy of this pack:

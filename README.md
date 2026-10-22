@@ -100,6 +100,32 @@ named in the last column. The indicators are threat-actor infrastructure and sam
 the cited vendor reports, not live samples: no malware, payload or sample file is in this
 repository.
 
+The four structural detections from "Deploy these four first", and where each one lives in every
+format that carries it. Traced from the rule titles, query labels and SIDs in the files named.
+
+```mermaid
+flowchart LR
+  d1["Detection 1: libcurl.dll loaded from a user-writable path (A)"] --> s1["Sigma: boryptgrab-fake-github-repos.yml<br/>libcurl.dll Sideloaded From User-Writable Path"]
+  d1 --> k1["KQL Q2"]
+  d1 --> p1["SPL S2"]
+  d2["Detection 2: OriginalFileName gup.exe under another name (A)"] --> s2["Sigma: boryptgrab-fake-github-repos.yml<br/>Signed WinGUP Updater Renamed To A Vendor Brand Name"]
+  d2 --> k2["KQL Q3"]
+  d2 --> p2["SPL S3"]
+  d3["Detection 3: protocol=DotNet-TcpFDMTP in a URI (B)"] --> s3["Sigma: quickfox-fdmtp-supply-chain.yml<br/>FDMTP Cluster Registration Request"]
+  d3 --> r3["Suricata sid 1000020"]
+  d3 --> k3["KQL Q10"]
+  d3 --> p3["SPL S10"]
+  d4["Detection 4: archive fetched with a github.io referrer from a non-GitHub host (A, cross-campaign)"] --> r4["Suricata sid 1000008"]
+  d4 --> k4["KQL Q13"]
+  d4 --> p4["SPL S14"]
+```
+
+KQL is `detections/kql/defender-sentinel-hunting.kql`, SPL is
+`detections/splunk/sysmon-searches.spl`, Suricata is `detections/suricata/borrowed-trust.rules`.
+Detection 4 has no general Sigma form. The nearest Sigma rule, "BoryptGrab Fake Download Page Or
+Payload Endpoint Accessed", also matches a `.github.io` referrer but only on campaign A's
+`/download-archive` path, so it is not drawn as detection 4.
+
 ---
 
 ## The short version

@@ -4,24 +4,38 @@
 
 This is an archived snapshot dated 2026-08-10; the maintained copy is campaigns/2026-08-borrowed-trust in saluca-labs/detection-content. It contains no malware, samples or payloads: the hashes, domains and IPs in iocs/indicators.csv are published indicators, each attributed to its source report. KQL and SPL were never executed against a tenant; the Suricata file was replaced on 2026-10-22 with the version that loads (26 rules, Suricata 7.0.17), see the README correction. Rules have not been tuned on real telemetry.
 
-## Docs
+If a rule file, script or parameter is not listed here, it does not exist in this repository. The complete surface is five rule files plus their two validators, two PowerShell scripts, and one indicator CSV. Counts below were taken from the files on 2026-10-22: Sigma 22 (`id:` lines across three files), YARA 12, KQL 15 (Q0 to Q14), SPL 16 (S0 to S15), Suricata 26.
 
-- [README](https://github.com/saluca-labs/borrowed-trust-detections/blob/main/README.md): status and corrections, what each rule keys on, what cannot be detected, validation table
+## Start here
 
-## Code
+- [README](https://github.com/saluca-labs/borrowed-trust-detections/blob/main/README.md): status and corrections, the four structural detections and where each lives in every format (diagram), what cannot be detected, validation table
 
-- [Sigma rules](https://github.com/saluca-labs/borrowed-trust-detections/blob/main/detections/sigma/): 22 rules in three files, plus validate.py
-- [YARA rules](https://github.com/saluca-labs/borrowed-trust-detections/blob/main/detections/yara/borrowed-trust.yar): 12 rules; detections/yara/validate.py compiles them and smoke-tests for false positives
-- [KQL](https://github.com/saluca-labs/borrowed-trust-detections/blob/main/detections/kql/defender-sentinel-hunting.kql): Defender XDR / Sentinel hunting queries Q0 to Q14
-- [SPL](https://github.com/saluca-labs/borrowed-trust-detections/blob/main/detections/splunk/sysmon-searches.spl): Sysmon searches S0 to S15
-- [Suricata](https://github.com/saluca-labs/borrowed-trust-detections/blob/main/detections/suricata/borrowed-trust.rules): 26 network rules, SID 1000001-1000060
-- [Invoke-BorrowedTrustSweep.ps1](https://github.com/saluca-labs/borrowed-trust-detections/blob/main/hunt/Invoke-BorrowedTrustSweep.ps1): read-only host sweep for all three campaigns
-- [Invoke-DevToolchainExposureReview.ps1](https://github.com/saluca-labs/borrowed-trust-detections/blob/main/hunt/Invoke-DevToolchainExposureReview.ps1): read-only review of npm install scripts and editor run-on-open hooks
-- [iocs/indicators.csv](https://github.com/saluca-labs/borrowed-trust-detections/blob/main/iocs/indicators.csv): published indicators, one per row, with source
+## Deploy rules
+
+- [Sigma rules](https://github.com/saluca-labs/borrowed-trust-detections/blob/main/detections/sigma/): 22 rules in boryptgrab-fake-github-repos.yml, quickfox-fdmtp-supply-chain.yml, lumma-free-vpn-github.yml; convert with your SIEM's backend
+- [YARA rules](https://github.com/saluca-labs/borrowed-trust-detections/blob/main/detections/yara/borrowed-trust.yar): 12 rules
+- [KQL](https://github.com/saluca-labs/borrowed-trust-detections/blob/main/detections/kql/defender-sentinel-hunting.kql): Defender XDR / Sentinel hunting queries Q0 to Q14, never executed against a tenant
+- [SPL](https://github.com/saluca-labs/borrowed-trust-detections/blob/main/detections/splunk/sysmon-searches.spl): Sysmon searches S0 to S15, never executed against Splunk
+- [Suricata](https://github.com/saluca-labs/borrowed-trust-detections/blob/main/detections/suricata/borrowed-trust.rules): 26 network rules, SID 1000001-1000060; loads 26/26 in Suricata 7.0.17
+
+## Check the rules
+
+- [detections/sigma/validate.py](https://github.com/saluca-labs/borrowed-trust-detections/blob/main/detections/sigma/validate.py): parses every Sigma rule, checks required keys, unique ids, and that every selection in a condition is defined (needs pyyaml)
+- [detections/yara/validate.py](https://github.com/saluca-labs/borrowed-trust-detections/blob/main/detections/yara/validate.py): compiles the YARA rules and, on Windows, runs a false-positive smoke test on four system binaries (needs yara-python)
+- [Validator output, 2026-10-22](https://github.com/saluca-labs/borrowed-trust-detections/blob/main/docs/img/validators-2026-10-22.txt): the captured text both validators printed
+
+## Hunt on a Windows host (read-only)
+
+- [hunt/Invoke-BorrowedTrustSweep.ps1](https://github.com/saluca-labs/borrowed-trust-detections/blob/main/hunt/Invoke-BorrowedTrustSweep.ps1): host sweep for all three campaigns; parameters -Deep, -JsonOut <file>; known A2 false positive on per-user installs that ship libcurl.dll
+- [hunt/Invoke-DevToolchainExposureReview.ps1](https://github.com/saluca-labs/borrowed-trust-detections/blob/main/hunt/Invoke-DevToolchainExposureReview.ps1): npm install scripts and editor run-on-open hooks; parameters -Roots <dir[]> (required), -JsonOut <file>
+
+## Indicators
+
+- [iocs/indicators.csv](https://github.com/saluca-labs/borrowed-trust-detections/blob/main/iocs/indicators.csv): published indicators, one per row, with the source report in the last column
 
 ## Optional
 
 - [CITATION.cff](https://github.com/saluca-labs/borrowed-trust-detections/blob/main/CITATION.cff): how to cite
-- [Companion paper](https://doi.org/10.5281/zenodo.21880001): the analysis on Zenodo
-- [Maintained copy in detection-content](https://github.com/saluca-labs/detection-content/tree/main/campaigns/2026-08-borrowed-trust)
+- [Companion paper](https://doi.org/10.5281/zenodo.21880001): the analysis on Zenodo (concept DOI)
+- [Maintained copy in detection-content](https://github.com/saluca-labs/detection-content/tree/main/campaigns/2026-08-borrowed-trust): where fixes land
 - [llms-full.txt](https://github.com/saluca-labs/borrowed-trust-detections/blob/main/llms-full.txt): the README in one file
