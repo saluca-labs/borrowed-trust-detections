@@ -1,0 +1,60 @@
+Captured 2026-10-22 from a clean clone of saluca-labs/borrowed-trust-detections (branch from origin/main), Windows 11.
+Python 3.12.10, PyYAML 6.0.3, yara-python 4.5.4, PYTHONIOENCODING=utf-8.
+Commands, run from the repository root (the '$ ' lines in the image are these commands; every other line is the unedited output):
+  python detections/sigma/validate.py
+  python detections/yara/validate.py
+Rendered with rich Console(record=True).save_svg, then headless Chromium (playwright) to PNG, ligatures off.
+
+----- captured text -----
+$ python detections/sigma/validate.py
+boryptgrab-fake-github-repos.yml: 10 rule(s)
+   ok  [high] libcurl.dll Sideloaded From User-Writable Path
+   ok  [high] Signed WinGUP Updater Renamed To A Vendor Brand Name
+   ok  [critical] BoryptGrab Stealer Staging Directory Or Output Artifact Created
+   ok  [high] Chrome App-Bound Encryption Bypass Via Remote Thread Into Browser
+   ok  [medium] Browser Process Memory Read By Non-Browser Process
+   ok  [high] Steam Client Memory Scraped For Session Tokens
+   ok  [low] Mass Browser Termination Preceding Credential Theft
+   ok  [high] BoryptGrab Exfiltration Over Plaintext HTTP POST /upload
+   ok  [critical] BoryptGrab Campaign Infrastructure Contacted
+   ok  [high] BoryptGrab Fake Download Page Or Payload Endpoint Accessed
+lumma-free-vpn-github.yml: 3 rule(s)
+   ok  [high] Lumma Dropper Stages msvcp110 In AppData Roaming Root
+   ok  [high] Injection Into MSBuild.exe Or aspnet_regiis.exe From Non-Developer Parent
+   ok  [critical] Lumma Free VPN Campaign C2 Contacted
+quickfox-fdmtp-supply-chain.yml: 9 rule(s)
+   ok  [critical] FDMTP Sideload Pair csmonitor.exe Loading Microsoft.ServiceHosting.Tools.dll
+   ok  [high] csmonitor.exe Executing From A Temp Or Roaming Path
+   ok  [critical] FDMTP Implant Artifacts Written Under quickfox Temp Tree
+   ok  [high] FDMTP Registry Persistence Under HKCU IME Key
+   ok  [critical] FDMTP Cluster Registration Request
+   ok  [critical] QuickFox Trojanized Update Infrastructure Contacted
+   ok  [high] Outbound Connection To FDMTP Cluster Node Or Port Range
+   ok  [medium] QuickFox Electron Renderer Fetching Remote Script
+   ok  [informational] FDMTP Victim Validation Application Survey
+
+22 rules across 3 files, 22 unique ids
+All Sigma rules valid.
+
+$ python detections/yara/validate.py
+COMPILE OK - 12 rules
+    BoryptGrab_Loader_libcurl_Sideload
+    BoryptGrab_Loader_Structural
+    BoryptGrab_Stealer_InMemory
+    BoryptGrab_Delivery_Page
+    BoryptGrab_Known_Hashes
+    QuickFox_FDMTP_Loader_Gen2
+    QuickFox_FDMTP_Registration
+    QuickFox_Trojanized_Renderer
+    QuickFox_FDMTP_Known_Hashes
+    LummaVPN_Dropper_Launch
+    LummaVPN_Known_Hashes
+    GhVpn_Campaign_C2_Domains
+
+False-positive smoke test against known-benign system binaries:
+  ok  C:\Windows\System32\notepad.exe
+  ok  C:\Windows\System32\curl.exe
+  ok  C:\Windows\System32\msvcp_win.dll
+  ok  C:\Windows\System32\kernel32.dll
+
+0 false positive(s) on the benign set.

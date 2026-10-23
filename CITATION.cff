@@ -22,8 +22,8 @@ license: Apache-2.0
 date-released: 2026-08-10
 identifiers:
   - type: doi
-    value: "10.5281/zenodo.21880002"
-    description: "Companion paper, published on Zenodo 2026-08-11 under CC-BY-4.0."
+    value: "10.5281/zenodo.21880001"
+    description: "Companion paper, concept DOI (resolves to the latest version). Published on Zenodo 2026-08-11 under CC-BY-4.0."
 preferred-citation:
   type: report
   title: >-
@@ -39,8 +39,8 @@ preferred-citation:
     name: "Saluca Labs"
   year: 2026
   month: 8
-  doi: "10.5281/zenodo.21880002"
-  url: "https://doi.org/10.5281/zenodo.21880002"
+  doi: "10.5281/zenodo.21880001"
+  url: "https://doi.org/10.5281/zenodo.21880001"
   license: CC-BY-4.0
 keywords:
   - detection engineering

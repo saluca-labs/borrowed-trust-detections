@@ -1,8 +1,130 @@
 # Borrowed Trust
 
 **Detection content for three concurrent campaigns that share one execution primitive.**
+Sigma, YARA, KQL, SPL and Suricata rules plus two read-only PowerShell hunt scripts, for
+defenders who run those tools.
 
 Current to **2026-08-10**. Defensive material only.
+
+## Status
+
+Archived snapshot of the August 2026 pack. The rules have not been tuned against real telemetry.
+On 2026-08-20 this pack was consolidated into
+[`saluca-labs/detection-content`](https://github.com/saluca-labs/detection-content) as
+[`campaigns/2026-08-borrowed-trust`](https://github.com/saluca-labs/detection-content/tree/main/campaigns/2026-08-borrowed-trust),
+which is where fixes land; this repository received the Suricata fix below on 2026-10-22.
+
+> **Correction, 2026-10-22:**
+>
+> 1. **The Suricata file as first published here did not load.** Every rule was written across
+>    several lines without trailing backslashes, so Suricata 7.0.17 rejected the whole file
+>    (52 parse errors, "Loading signatures failed"), and six `http.host` matches carried `nocase`,
+>    which Suricata 7 rejects. The file is now the single-line version fixed in
+>    `detection-content` on 2026-09-16; the detection logic is unchanged apart from whitespace and
+>    the `nocase` removals. It loads 26 of 26 rules in Suricata 7.0.17 (checked 2026-10-22). **If
+>    you deployed the earlier file, Suricata rejected it. Redeploy this version.**
+> 2. **There are 26 Suricata rules, not 24** as the tables below said.
+> 3. Under "What you cannot detect here", this README said the campaign A executable "is
+>    genuinely signed by the Notepad++ project". The source report describes it as legitimate and
+>    signed but does not name the signer, which this README itself corrected on 2026-08-10 in the
+>    campaign description and missed in that later sentence. Read it as "is a legitimately signed
+>    binary; the report does not name the signer".
+> 4. The citation used the version DOI 10.5281/zenodo.21880002; it now uses the concept DOI
+>    10.5281/zenodo.21880001, which resolves to the latest version.
+>
+> The text below is otherwise kept as published.
+
+## Install
+
+Nothing to install to use the rules: they are text files for your SIEM, EDR or sensor. To run
+the two validators, Python 3 with `pyyaml` and `yara-python` (tested 2026-10-22 on Python
+3.12.10, PyYAML 6.0.3, yara-python 4.5.4):
+
+```bash
+git clone https://github.com/saluca-labs/borrowed-trust-detections
+cd borrowed-trust-detections
+python -m pip install pyyaml yara-python
+```
+
+The hunt scripts need Windows PowerShell 5.1 and nothing else.
+
+## Quickstart
+
+```bash
+python detections/sigma/validate.py
+python detections/yara/validate.py
+```
+
+Last lines of each, from a run on 2026-10-22 on Windows 11 (full capture in
+[`docs/img/validators-2026-10-22.txt`](docs/img/validators-2026-10-22.txt)):
+
+```
+22 rules across 3 files, 22 unique ids
+All Sigma rules valid.
+```
+
+```
+0 false positive(s) on the benign set.
+```
+
+The YARA false-positive smoke test reads four files under `C:\Windows\System32`, so it only
+runs on Windows; the compile step runs anywhere.
+
+## Usage
+
+- **Sigma** (`detections/sigma/*.yml`): convert with the backend for your SIEM, for example
+  with sigma-cli's `sigma convert` (not part of this repository).
+- **YARA** (`detections/yara/borrowed-trust.yar`): `yara -r detections/yara/borrowed-trust.yar <path>`.
+- **KQL** (`detections/kql/defender-sentinel-hunting.kql`): paste a query (Q0 to Q14) into
+  Defender XDR or Sentinel advanced hunting.
+- **SPL** (`detections/splunk/sysmon-searches.spl`): searches S0 to S15 for the Sysmon add-on.
+- **Suricata** (`detections/suricata/borrowed-trust.rules`): add to your rule set and define
+  `HOME_NET`. Load check: `suricata -T -S detections/suricata/borrowed-trust.rules`.
+- **Hunt** (read-only, writes a JSON report next to the script unless `-JsonOut` is given):
+  `powershell -ExecutionPolicy Bypass -File hunt/Invoke-BorrowedTrustSweep.ps1 [-Deep] [-JsonOut <file>]`
+  and `powershell -ExecutionPolicy Bypass -File hunt/Invoke-DevToolchainExposureReview.ps1 -Roots <dir> [-JsonOut <file>]`.
+  The reports record hostnames, usernames and paths; `.gitignore` keeps them out of commits.
+  Measured 2026-10-22 on a Windows 11 developer workstation: `Invoke-BorrowedTrustSweep.ps1`
+  completed in about 15 minutes and reported two HIGH findings under check A2, both legitimate
+  per-user application installs under `AppData\Local` that ship their own `libcurl.dll`. Expect
+  that false positive from A2 on hosts with per-user installs, and triage by signer and install
+  path before acting on it.
+
+## Architecture
+
+See "What this repository contains" below for the layout. Every rule is keyed to a campaign
+letter (A BoryptGrab, B QuickFox FDMTP, C Lumma "Free VPN"), and the same detection appears
+across formats under matching labels (for example KQL Q2 and SPL S2 are the Sigma `libcurl.dll`
+rule). `iocs/indicators.csv` holds the atomic indicators, one per row, with the source report
+named in the last column. The indicators are threat-actor infrastructure and sample hashes from
+the cited vendor reports, not live samples: no malware, payload or sample file is in this
+repository.
+
+The four structural detections from "Deploy these four first", and where each one lives in every
+format that carries it. Traced from the rule titles, query labels and SIDs in the files named.
+
+```mermaid
+flowchart LR
+  d1["Detection 1: libcurl.dll loaded from a user-writable path (A)"] --> s1["Sigma: boryptgrab-fake-github-repos.yml<br/>libcurl.dll Sideloaded From User-Writable Path"]
+  d1 --> k1["KQL Q2"]
+  d1 --> p1["SPL S2"]
+  d2["Detection 2: OriginalFileName gup.exe under another name (A)"] --> s2["Sigma: boryptgrab-fake-github-repos.yml<br/>Signed WinGUP Updater Renamed To A Vendor Brand Name"]
+  d2 --> k2["KQL Q3"]
+  d2 --> p2["SPL S3"]
+  d3["Detection 3: protocol=DotNet-TcpFDMTP in a URI (B)"] --> s3["Sigma: quickfox-fdmtp-supply-chain.yml<br/>FDMTP Cluster Registration Request"]
+  d3 --> r3["Suricata sid 1000020"]
+  d3 --> k3["KQL Q10"]
+  d3 --> p3["SPL S10"]
+  d4["Detection 4: archive fetched with a github.io referrer from a non-GitHub host (A, cross-campaign)"] --> r4["Suricata sid 1000008"]
+  d4 --> k4["KQL Q13"]
+  d4 --> p4["SPL S14"]
+```
+
+KQL is `detections/kql/defender-sentinel-hunting.kql`, SPL is
+`detections/splunk/sysmon-searches.spl`, Suricata is `detections/suricata/borrowed-trust.rules`.
+Detection 4 has no general Sigma form. The nearest Sigma rule, "BoryptGrab Fake Download Page Or
+Payload Endpoint Accessed", also matches a `.github.io` referrer but only on campaign A's
+`/download-archive` path, so it is not drawn as detection 4.
 
 ---
 
@@ -55,7 +177,7 @@ detections/
   yara/       12 rules, plus a compile-and-false-positive validator
   kql/        15 Defender XDR / Sentinel advanced hunting queries
   splunk/     16 Sysmon-based searches, plus lookup table definitions
-  suricata/   24 network rules, SID 1000001-1000060
+  suricata/   24 network rules, SID 1000001-1000060   (26, see the correction above)
 hunt/
   Invoke-BorrowedTrustSweep.ps1            read-only host sweep for all three campaigns
   Invoke-DevToolchainExposureReview.ps1    read-only review of npm install scripts and
@@ -160,7 +282,7 @@ the discipline and it is the most important line in this file.
 | PowerShell, 2 scripts | **Executed** end to end on Windows 11 / PowerShell 5.1. |
 | KQL, 15 queries | **Not executed.** Authored against the Defender XDR schema. No tenant was available. |
 | SPL, 16 searches | **Not executed.** Authored against the Sysmon add-on field names. No Splunk instance was available. |
-| Suricata, 24 rules | **Not executed.** No sensor was available to load them. |
+| Suricata, 24 rules | **Not executed.** No sensor was available to load them. *(Correction, 2026-10-22: 26 rules. The file as published here did not load; the fixed file loads 26/26 in Suricata 7.0.17.)* |
 
 The `curl.exe` case in the YARA smoke test is deliberate: one rule targets a trojanized libcurl,
 and a rule that flags the real thing is worse than no rule.
@@ -209,8 +331,8 @@ Companion paper: *Borrowed Trust: A Detection Engineering Analysis of Three Conc
 Signed-Binary Sideload Campaigns, August 2026*, Cristian Ruvalcaba and the Saluca Agentic AI
 Research Team, Saluca Labs.
 
-**DOI: [10.5281/zenodo.21880002](https://doi.org/10.5281/zenodo.21880002)** · Zenodo, 2026 ·
-CC-BY-4.0
+**DOI: [10.5281/zenodo.21880001](https://doi.org/10.5281/zenodo.21880001)** (concept DOI,
+resolves to the latest version) · Zenodo, 2026 · CC-BY-4.0
 
 Published 2026-08-11. See `CITATION.cff` for machine-readable citation metadata.
 
@@ -221,15 +343,37 @@ Published 2026-08-11. See `CITATION.cff` for machine-readable citation metadata.
   author = {Ruvalcaba, Cristian and {Saluca Agentic AI Research Team}},
   year   = {2026},
   institution = {Saluca Labs},
-  doi    = {10.5281/zenodo.21880002},
-  url    = {https://doi.org/10.5281/zenodo.21880002}
+  doi    = {10.5281/zenodo.21880001},
+  url    = {https://doi.org/10.5281/zenodo.21880001}
 }
 ```
 
+## Screenshots
+
+![Terminal output of the Sigma validator (22 rules across 3 files, all valid) and the YARA validator (12 rules compiled, 0 false positives on four Windows system binaries)](docs/img/validators-2026-10-22.png)
+
+Captured 2026-10-22 from a clean clone on Windows 11; commands and captured text in
+[`docs/img/validators-2026-10-22.txt`](docs/img/validators-2026-10-22.txt).
+
 ## License
 
-Apache License 2.0. See `LICENSE`.
+Split by path, declared file by file in [`REUSE.toml`](REUSE.toml) ([REUSE](https://reuse.software)
+layout; the licence texts are in [`LICENSES/`](LICENSES/)):
+
+- **Detection content, hunt scripts and repository docs** (`detections/`, `hunt/`, README,
+  llms.txt, `docs/`): **Apache-2.0**, see [`LICENSE`](LICENSE).
+- **Data** (`iocs/`): **CC-BY-4.0**, the licence of the companion paper's Zenodo record. The paper
+  itself is not in this repository.
+
+## Links
+
+- Companion paper: https://doi.org/10.5281/zenodo.21880001
+- Maintained copy of this pack:
+  https://github.com/saluca-labs/detection-content/tree/main/campaigns/2026-08-borrowed-trust
+- Arctic Wolf's own rules: https://github.com/rtkwlf/wolf-tools
 
 ---
 
 *Cristian Ruvalcaba and the Saluca Agentic AI Research Team, Saluca Labs.*
+
+_Last updated: 2026-10-22_
