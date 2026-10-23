@@ -357,7 +357,13 @@ Captured 2026-10-22 from a clean clone on Windows 11; commands and captured text
 
 ## License
 
-Apache License 2.0 (SPDX `Apache-2.0`). See [`LICENSE`](LICENSE). The companion paper is CC-BY-4.0.
+Split by path, declared file by file in [`REUSE.toml`](REUSE.toml) ([REUSE](https://reuse.software)
+layout; the licence texts are in [`LICENSES/`](LICENSES/)):
+
+- **Detection content, hunt scripts and repository docs** (`detections/`, `hunt/`, README,
+  llms.txt, `docs/`): **Apache-2.0**, see [`LICENSE`](LICENSE).
+- **Data** (`iocs/`): **CC-BY-4.0**, the licence of the companion paper's Zenodo record. The paper
+  itself is not in this repository.
 
 ## Links
 
