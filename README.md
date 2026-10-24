@@ -1,3 +1,5 @@
+![borrowed-trust-detections](docs/img/banner-2026-10-23.jpg)
+
 # Borrowed Trust
 
 **Detection content for three concurrent campaigns that share one execution primitive.**
